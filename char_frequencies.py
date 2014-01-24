@@ -22,38 +22,27 @@ __author__ = "David Rusk <drusk@uvic.ca>"
 
 import collections
 
+import matplotlib.pyplot as plt
 
-class GeneSequence(object):
-    def __init__(self, name, characters, classification=None):
-        self.name = name
-        self.characters = characters
-        self.classification = classification
-
-    @property
-    def char_counts(self):
-        counts = collections.defaultdict(int)
-        for char in self.characters:
-            counts[char] += 1
-
-        return counts
-
-    @classmethod
-    def parse_line(cls, text):
-        classification, name, characters = map(str.strip, text.split(","))
-        return cls(name, characters, classification)
+from splice.dataset import DataSet
 
 
-class DataSet(object):
-    def __init__(self, gene_sequences):
-        self.gene_sequences = gene_sequences
+def main():
+    dataset = DataSet.parse_file("data/splice.data")
 
-    def __iter__(self):
-        return iter(self.gene_sequences)
+    total_counts = collections.defaultdict(int)
+    for gene_sequence in dataset:
+        for char, count in gene_sequence.char_counts.iteritems():
+            total_counts[char] += count
 
-    def __len__(self):
-        return len(self.gene_sequences)
+    print total_counts
+    print sum(total_counts.values())
 
-    @classmethod
-    def parse_file(cls, filename):
-        with open(filename, "rb") as filehandle:
-            return cls([GeneSequence.parse_line(line) for line in filehandle])
+    plt.bar(range(len(total_counts)), total_counts.values(), align="center")
+    plt.xticks(range(len(total_counts)), total_counts.keys())
+
+    plt.show()
+
+
+if __name__ == "__main__":
+    main()
