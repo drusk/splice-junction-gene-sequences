@@ -45,6 +45,17 @@ class DataSetTest(unittest.TestCase):
         assert_that(dataset.gene_sequences[0].name, equal_to("ATRINS-DONOR-521"))
         assert_that(dataset.gene_sequences[-1].name, equal_to("GCRHBBA1-DONOR-1590"))
 
+    def test_character_frequencies(self):
+        gene_sequence = GeneSequence("1", "CCAGCTGCAT")
+
+        assert_that(gene_sequence.char_counts,
+                    equal_to({
+                        "A": 2,
+                        "C": 4,
+                        "G": 2,
+                        "T": 2
+                    }))
+
 
 if __name__ == '__main__':
     unittest.main()

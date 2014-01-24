@@ -20,12 +20,22 @@
 
 __author__ = "David Rusk <drusk@uvic.ca>"
 
+import collections
+
 
 class GeneSequence(object):
     def __init__(self, name, characters, classification=None):
         self.name = name
         self.characters = characters
         self.classification = classification
+
+    @property
+    def char_counts(self):
+        counts = collections.defaultdict(int)
+        for char in self.characters:
+            counts[char] += 1
+
+        return counts
 
     @classmethod
     def parse_line(cls, text):
