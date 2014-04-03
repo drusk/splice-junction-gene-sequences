@@ -20,11 +20,21 @@
 
 __author__ = "David Rusk <drusk@uvic.ca>"
 
+import math
 
-class EditDistanceCalculator(object):
-    def calculate_distance(self, sequence1, sequence2):
+
+class DistanceCalculator(object):
+    def _check_same_length(self, sequence1, sequence2):
         if len(sequence1) != len(sequence2):
             raise ValueError("Sequences must have same length.")
+
+    def calculate_distance(self, sequence1, sequence2):
+        raise NotImplementedError()
+
+
+class EditDistanceCalculator(DistanceCalculator):
+    def calculate_distance(self, sequence1, sequence2):
+        self._check_same_length(sequence1, sequence2)
 
         count = 0
         for i in xrange(len(sequence1)):
@@ -32,3 +42,30 @@ class EditDistanceCalculator(object):
                 count += 1
 
         return count
+
+
+class GaussianWeightedDistanceCalculator(DistanceCalculator):
+    """
+    Gives more weight to nucleotides around the boundary.
+    """
+
+    def __init__(self, centre=30, variance=20):
+        self.centre = centre
+        self.variance = variance
+
+    def calculate_distance(self, sequence1, sequence2):
+        self._check_same_length(sequence1, sequence2)
+
+        distance = 0
+        for i in xrange(len(sequence1)):
+            delta = 0
+            if sequence1[i] == sequence2[i]:
+                delta = 1
+
+            distance += self._weight(i) * (1 - delta)
+
+        return distance
+
+    def _weight(self, index):
+        return math.exp(
+            -math.pow(index - self.centre, 2) / self.variance)
