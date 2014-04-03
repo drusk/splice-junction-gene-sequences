@@ -29,6 +29,12 @@ class GeneSequence(object):
         self.characters = characters
         self.classification = classification
 
+    def __len__(self):
+        return len(self.characters)
+
+    def __getitem__(self, item):
+        return self.characters[item]
+
     @property
     def char_counts(self):
         counts = collections.defaultdict(int)
