@@ -21,6 +21,7 @@
 __author__ = "David Rusk <drusk@uvic.ca>"
 
 import collections
+import random
 
 
 class GeneSequence(object):
@@ -63,3 +64,23 @@ class DataSet(object):
     def parse_file(cls, filename):
         with open(filename, "rb") as filehandle:
             return cls([GeneSequence.parse_line(line) for line in filehandle])
+
+    def train_test_split(self):
+        genes_by_class = collections.defaultdict(list)
+
+        for gene_sequence in self.gene_sequences:
+            genes_by_class[gene_sequence.classification].append(gene_sequence)
+
+        def shuffle_split(sequences):
+            split_point = len(sequences) / 2
+            random.shuffle(sequences)
+            return sequences[:split_point], sequences[split_point:]
+
+        all_training = []
+        all_testing = []
+        for sequences in genes_by_class.values():
+            training, testing = shuffle_split(sequences)
+            all_training.extend(training)
+            all_testing.extend(testing)
+
+        return DataSet(all_training), DataSet(all_testing)
