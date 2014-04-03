@@ -24,7 +24,7 @@ import argparse
 
 from splice.classifiers import NearestNeighboursClassifier
 from splice.dataset import DataSet
-from splice.distances import EditDistanceCalculator
+from splice.distances import GaussianWeightedDistanceCalculator
 from splice.validation import AccuracyCalculator
 
 
@@ -37,12 +37,12 @@ def main():
     args = parser.parse_args()
 
     dataset = DataSet.parse_file(args.data_filename)
-    print len(dataset)
     training, testing = dataset.train_test_split()
-    print len(training), len(testing)
+    print "Training instances: %d" % len(training)
+    print "Testing instances: %d" % len(testing)
 
     classifier = NearestNeighboursClassifier(training,
-                                             EditDistanceCalculator(),
+                                             GaussianWeightedDistanceCalculator(),
                                              k=5)
 
     print AccuracyCalculator(classifier).accuracy(testing)
