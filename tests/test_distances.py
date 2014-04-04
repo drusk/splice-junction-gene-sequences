@@ -24,7 +24,8 @@ import unittest
 
 from hamcrest import assert_that, equal_to
 
-from splice.distances import EditDistanceCalculator
+from splice.distances import (EditDistanceCalculator,
+                              KnowledgeBasedDistanceCalculator)
 
 
 class EditDistanceCalculatorTest(unittest.TestCase):
@@ -46,6 +47,68 @@ class EditDistanceCalculatorTest(unittest.TestCase):
     def test_unequal_length_raises_exception(self):
         self.assertRaises(ValueError,
                           self.calculator.calculate_distance, "ABC", "ABCD")
+
+
+class KnowledgeBasedDistanceCalculatorTest(unittest.TestCase):
+    """
+    TODO refactor: repeated offsets
+    """
+
+    def setUp(self):
+        self.calculator = KnowledgeBasedDistanceCalculator()
+
+    def build_sequence(self, chars, offset, length=60, placeholder="X"):
+        seq = placeholder * offset + chars
+        return seq + placeholder * (length - len(seq))
+
+    def test_ei_distance_all_same(self):
+        offset = 27
+        seq1 = self.build_sequence("AAGGTAAGT", offset, placeholder="X")
+        seq2 = self.build_sequence("AAGGTAAGT", offset, placeholder="Y")
+
+        assert_that(self.calculator.ei_distance(seq1, seq2), equal_to(0))
+
+    def test_ei_distance_equiv_chars(self):
+        offset = 27
+        seq1 = self.build_sequence("AAGGTAAGT", offset, placeholder="X")
+        seq2 = self.build_sequence("CAGGTGAGT", offset, placeholder="Y")
+
+        assert_that(self.calculator.ei_distance(seq1, seq2), equal_to(0))
+
+    def test_ei_distance_some_differences(self):
+        offset = 27
+        seq1 = self.build_sequence("AAGGTAAGT", offset, placeholder="X")
+        seq2 = self.build_sequence("CCGTTGGGT", offset, placeholder="Y")
+
+        assert_that(self.calculator.ei_distance(seq1, seq2), equal_to(3))
+
+    def test_ie_distance_all_same(self):
+        offset = 20
+        seq1 = self.build_sequence("CCCCCCACAGGG", offset, placeholder="X")
+        seq2 = self.build_sequence("CCCCCCACAGGG", offset, placeholder="Y")
+
+        assert_that(self.calculator.ie_distance(seq1, seq2), equal_to(0))
+
+    def test_ie_diff_in_27_ignored(self):
+        offset = 20
+        seq1 = self.build_sequence("CCCCCCACAGGG", offset, placeholder="X")
+        seq2 = self.build_sequence("CCCCCCTCAGGG", offset, placeholder="Y")
+
+        assert_that(self.calculator.ie_distance(seq1, seq2), equal_to(0))
+
+    def test_ie_distance_equiv_chars(self):
+        offset = 20
+        seq1 = self.build_sequence("CCCCCCACAGGG", offset, placeholder="X")
+        seq2 = self.build_sequence("TTTTTTATAGGT", offset, placeholder="Y")
+
+        assert_that(self.calculator.ie_distance(seq1, seq2), equal_to(0))
+
+    def test_ie_distance_some_differences(self):
+        offset = 20
+        seq1 = self.build_sequence("CCCCCCACAGGG", offset, placeholder="X")
+        seq2 = self.build_sequence("TTTTTTAGTTGT", offset, placeholder="Y")
+
+        assert_that(self.calculator.ie_distance(seq1, seq2), equal_to(3))
 
 
 if __name__ == '__main__':

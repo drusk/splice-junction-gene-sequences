@@ -69,3 +69,66 @@ class GaussianWeightedDistanceCalculator(DistanceCalculator):
     def _weight(self, index):
         return math.exp(
             -math.pow(index - self.centre, 2) / self.variance)
+
+
+class KnowledgeBasedDistanceCalculator(DistanceCalculator):
+    """
+    Uses biological knowledge to inform the distance calculation.
+    """
+
+    def calculate_distance(self, sequence1, sequence2):
+        return min(self.ei_distance(sequence1, sequence2),
+                   self.ie_distance(sequence1, sequence2))
+
+    def _equivalent(self, char1, char2, equiv_chars=None):
+        if char1 == char2:
+            return True
+
+        if equiv_chars is None:
+            return False
+
+        # Not equal, so both must be in the equivalent characters class
+        return char1 in equiv_chars and char2 in equiv_chars
+
+    def ei_distance(self, sequence1, sequence2):
+        distance = 0
+
+        # Note 0 based indexing
+        for index in xrange(27, 36):
+            char1 = sequence1[index]
+            char2 = sequence2[index]
+
+            equiv_chars = None
+            if index == 27:
+                equiv_chars = ["A", "C"]
+            elif index == 32:
+                equiv_chars = ["A", "G"]
+
+            if not self._equivalent(char1, char2, equiv_chars):
+                distance += 1
+
+        return distance
+
+    def ie_distance(self, sequence1, sequence2):
+        distance = 0
+
+        # Note 0 based indices
+        for index in xrange(20, 32):
+            if index == 26:
+                continue
+
+            char1 = sequence1[index]
+            char2 = sequence2[index]
+
+            equiv_chars = None
+            if index in range(20, 26):
+                equiv_chars = ["C", "T"]
+            elif index == 27:
+                equiv_chars = ["C", "T"]
+            elif index == 31:
+                equiv_chars = ["G", "T"]
+
+            if not self._equivalent(char1, char2, equiv_chars):
+                distance += 1
+
+        return distance
