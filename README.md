@@ -29,3 +29,8 @@ For full details on the data set see docs/dataset_readme.txt
 Domain Theory
 -------------
 See docs/domain_theory.txt
+
+Results
+-------
+Edit distance, KNN, k=5: 0.699
+Gaussian weights, KNN, k=5: 0.875313283208
