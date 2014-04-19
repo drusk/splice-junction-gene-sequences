@@ -1,6 +1,6 @@
 
 clear
-filename='D:\UVIC\535 pattern rec\Project\splice.data';
+filename='../data/splice.data';
 
 [class,gene,~]=importdata(filename);
 
